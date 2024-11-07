@@ -1,44 +1,44 @@
 <!-- LANGUAGE_LINKS_START -->
-<span style="color: grey;">🇩🇪 German</span> | [🇬🇧 English](README_en.md) | [🇪🇸 Spanish](README_es.md) | [🇫🇷 French](README_fr.md) | [🇮🇹 Italian](README_it.md)
+[🇩🇪 German](README_de.md) | [🇬🇧 English](README_en.md) | <span style="color: grey;">🇪🇸 Spanish</span> | [🇫🇷 French](README_fr.md) | [🇮🇹 Italian](README_it.md)
 <!-- LANGUAGE_LINKS_END -->
 
-# Generisches Makefile zum Installieren von Lua- und Shell-Skript-Plugins und zugehöriger Dateien für Neutrino
+# Makefile genérico para instalar complementos de secuencias de comandos de Shell y Lua y archivos relacionados para Neutrino
 
-## Inhaltsverzeichnis
+## Tabla de contenido
 
-- [Generisches Makefile zum Installieren von Lua- und Shell-Skript-Plugins und zugehöriger Dateien für Neutrino](#generisches-makefile-zum-installieren-von-lua--und-shell-skript-plugins-und-zugehöriger-dateien-für-neutrino)
-  - [Inhaltsverzeichnis](#inhaltsverzeichnis)
-  - [Überblick](#überblick)
-  - [Verwendung](#verwendung)
-    - [Grundlegende Befehle](#grundlegende-befehle)
-      - [Hilfe](#hilfe)
-      - [Installation](#installation)
-      - [Deinstallation](#deinstallation)
-      - [Dateien überprüfen](#dateien-überprüfen)
-    - [Optionen](#optionen)
-    - [Dateikategorien und Installationsverhalten](#dateikategorien-und-installationsverhalten)
-    - [Makefile-Ziele](#makefile-ziele)
-  - [Beispielverwendung](#beispielverwendung)
-  - [Lokale Konfiguration](#lokale-konfiguration)
-    - [Beispiel Makefile.local](#beispiel-makefilelocal)
-  - [Integration in Yocto/OpenEmbedded Buildsystem](#integration-in-yoctoopenembedded-buildsystem)
-    - [Beispielrezept für Yocto/OE](#beispielrezept-für-yoctooe)
-  - [Integration in ein selbsterstelltes Buildsystem oder Crosstool-NG](#integration-in-ein-selbsterstelltes-buildsystem-oder-crosstool-ng)
-    - [Beispiel-Skript für ein selbsterstelltes Buildsystem](#beispiel-skript-für-ein-selbsterstelltes-buildsystem)
-  - [Arbeitsweise des Makefiles](#arbeitsweise-des-makefiles)
-  - [Hinweise](#hinweise)
-  - [Fehlerbehebung](#fehlerbehebung)
-  - [Lizenz](#lizenz)
+- [Generisches Makefile zum Installieren von Lua- und Shell-Skript-Plugins und zugehöriger Dateien für Neutrino](#makefile-genérico-para-instalar-complementos-de-secuencias-de-comandos-de-shell-y-lua-y-archivos-relacionados-para-neutrino)
+  - [Inhaltsverzeichnis](#tabla-de-contenido)
+  - [Überblick](#descripción-general)
+  - [Verwendung](#usar)
+    - [Grundlegende Befehle](#comandos-básicos)
+      - [Hilfe](#ayuda)
+      - [Installation](#instalación)
+      - [Deinstallation](#desinstalar)
+      - [Dateien überprüfen](#comprobar-archivos)
+    - [Optionen](#opciones)
+    - [Dateikategorien und Installationsverhalten](#categorías-de-datos-y-comportamiento-de-instalación)
+    - [Makefile-Ziele](#objetivos-de-archivos-make)
+  - [Beispielverwendung](#uso-de-ejemplo)
+  - [Lokale Konfiguration](#configuración-local)
+    - [Beispiel Makefile.local](#ejemplo-makefilelocal)
+  - [Integration in Yocto/OpenEmbedded Buildsystem](#integración-en-el-sistema-de-construcción-yoctoopenembedded)
+    - [Beispielrezept für Yocto/OE](#receta-de-ejemplo-para-yoctooe)
+  - [Integration in ein selbsterstelltes Buildsystem oder Crosstool-NG](#integración-en-un-sistema-de-construcción-de-creación-propia-o-crosstool-ng)
+    - [Beispiel-Skript für ein selbsterstelltes Buildsystem](#script-de-ejemplo-para-un-sistema-de-compilación-de-creación-propia)
+  - [Arbeitsweise des Makefiles](#cómo-funciona-el-archivo-makefile)
+  - [Hinweise](#notas)
+  - [Fehlerbehebung](#solución-de-problemas)
+  - [Lizenz](#licencia)
 
-## Überblick
+## descripción general
 
 Dieses `Makefile` wurde entwickelt, um die Installation, Deinstallation und Verwaltung von Lua- u. Shell-Skripten und zusätzlichen Dateien für die Neutrino-Umgebung nativ oder innerhalb eines Buildsystems zu ermöglichen. Es bietet verschiedene Anpassungsmöglichkeiten, die es flexibel und in unterschiedlichen Projekten wiederverwendbar machen.
 
-## Verwendung
+## usar
 
-### Grundlegende Befehle
+### Comandos básicos
 
-#### Hilfe
+#### Ayuda
 
 Um Nutzungsinformationen anzuzeigen, verwende:
 
@@ -46,7 +46,7 @@ Um Nutzungsinformationen anzuzeigen, verwende:
 make help
 ```
 
-#### Installation
+#### instalación
 
 Um dein Skript und die zugehörigen Dateien zu installieren, verwende:
 
@@ -54,7 +54,7 @@ Um dein Skript und die zugehörigen Dateien zu installieren, verwende:
 make install SCRIPT_NAME=<name> [options]
 ```
 
-#### Deinstallation
+#### Desinstalar
 
 Um die installierten Dateien zu deinstallieren, verwende:
 
@@ -64,7 +64,7 @@ make uninstall SCRIPT_NAME=<name> [options]
 
 >**Hinweis**: Das Ziel `uninstall` ist obligatorisch vorhanden und eignet sich gut für lokale Tests, um sicherzustellen, dass installierte Dateien einfach entfernt werden können.
 
-#### Dateien überprüfen
+#### comprobar archivos
 
 Um sicherzustellen, dass alle erforderlichen Dateien vorhanden sind, verwende:
 
@@ -72,7 +72,7 @@ Um sicherzustellen, dass alle erforderlichen Dateien vorhanden sind, verwende:
 make check SCRIPT_NAME=<name>
 ```
 
-### Optionen
+### Opciones
 
 Optionen können als Umgebungsvariablen oder in `Makefile.local` festgelegt werden, um das Verhalten des `Makefile`s zu steuern. Die Optionen können direkt beim Aufruf des `Makefile`s übergeben werden oder als Umgebungsvariablen gesetzt werden, die für den gesamten Shell-Kontext gelten.
 
@@ -108,7 +108,7 @@ Hier sind die unterstützten Optionen:
 
 - **`EXTRAFILES`** (optional): Zusätzliche zu installierende Dateien. Diese können einen vollständigen Pfad haben, was ermöglicht, dass sie auch aus anderen Speicherorten stammen.
 
-### Dateikategorien und Installationsverhalten
+### Categorías de datos y comportamiento de instalación.
 
 - **Lua-Skripte (`*.lua`)**: Mit Ausführberechtigungen (`755`) installiert.
 - **Shell-Skripte (`*.sh`)**: Mit Ausführberechtigungen (`755`) installiert.
@@ -118,7 +118,7 @@ Hier sind die unterstützten Optionen:
 - **Shell-Skripte (`*.sh`)**: Mit Ausführberechtigungen (`755`) installiert.
 - **Andere Dateien**: Mit Leseberechtigungen (`644`) installiert.
 
-### Makefile-Ziele
+### Objetivos de archivos Make
 
 - **`all`** (Standard): Führt das `install`-Ziel aus.
 - **`help`**: Zeigt Hilfeinformationen an, die alle Optionen und Nutzungsbeispiele auflisten.
@@ -127,7 +127,7 @@ Hier sind die unterstützten Optionen:
 - **`uninstall`**: Deinstalliert alle Dateien, die mit dem angegebenen `SCRIPT_NAME` verbunden sind. 
 - **`clean`**: Platzhalter für sämtliche Aufräumarbeiten (gibt derzeit "Nothing to clean." aus).
 
-## Beispielverwendung
+## Uso de ejemplo
 
 1. **Einfache Installation**
 
@@ -159,11 +159,11 @@ Hier sind die unterstützten Optionen:
    make help
    ```
 
-## Lokale Konfiguration
+## Configuración local
 
 Du kannst eine `Makefile.local`-Datei im selben Verzeichnis wie dieses `Makefile` erstellen, um Standardwerte für die verwendeten Variablen festzulegen. Dies ist besonders nützlich für häufig verwendete Skripte oder benutzerdefinierte Aufgaben.
 
-### Beispiel Makefile.local
+### Ejemplo Makefile.local
 
 ```make
 # Defaults for my-script
@@ -199,11 +199,11 @@ Damit würden die installierten Scripte und `cfg`'s diesen Namensraum haben:
 
 `enhanced-script-v2.*`
 
-## Integration in Yocto/OpenEmbedded Buildsystem
+## Integración en el sistema de construcción Yocto/OpenEmbedded
 
 Wenn du dieses `Makefile` in ein Yocto/OE Buildsystem einbauen möchtest, kannst du ein entsprechendes Rezept erstellen, das dieses `Makefile` verwendet, um die Skripte zu installieren. Angenommen, dein Quellcode besteht aus einer Lua-Datei und einer Konfigurationsdatei, und dieses `Makefile` befindet sich zusammen mit den Quelldateien in einem Git-Repository, könnte das Rezept folgendermaßen aussehen:
 
-### Beispielrezept für Yocto/OE
+### Receta de ejemplo para Yocto/OE
 
 **`my-script.bb`**
 
@@ -231,11 +231,11 @@ FILES_${PN} = "${bindir}/my-script.lua ${bindir}/my-script.cfg"
 
 In diesem Rezept werden die grundlegenden Variablen wie `SRC_URI` und `SRCREV` gesetzt, um die Quelle aus dem Git-Repository zu beziehen. Die `do_install()`-Funktion führt den Installationsschritt aus und nutzt die Parameter aus dem `Makefile`. In diesem Beispiel wird `SCRIPT_NAME` gesetzt, um das Zielskript zu spezifizieren.
 
-## Integration in ein selbsterstelltes Buildsystem oder Crosstool-NG
+## Integración en un sistema de construcción de creación propia o Crosstool-NG
 
 Das folgende Beispiel zeigt, wie das `Makefile` in ein selbsterstelltes Buildsystem oder ein Crosstool-NG-basiertes System integriert werden könnte. Dabei wird das Git-Repository geklont, das `Makefile` verwendet und anschließend aufgeräumt.
 
-### Beispiel-Skript für ein selbsterstelltes Buildsystem
+### Script de ejemplo para un sistema de compilación de creación propia
 
 ```sh
 #!/bin/sh
@@ -265,7 +265,7 @@ echo "Installation complete."
 
 Dieses Skript klont das Git-Repository in ein temporäres Verzeichnis (`/tmp/build`), führt den Installationsbefehl aus und bereinigt anschließend den temporären Ordner. Auf diese Weise kann das `Makefile` einfach in jedes benutzerdefinierte Buildsystem integriert werden.
 
-## Arbeitsweise des Makefiles
+## Cómo funciona el archivo Makefile
 
 Das `Makefile` arbeitet, indem es eine Reihe von vordefinierten Zielen und Optionen verwendet, die die Installation und Verwaltung von Skripten und Dateien vereinfachen. Hier ist eine detaillierte Übersicht, wie das `Makefile` funktioniert:
 
@@ -327,7 +327,7 @@ Die Deinstallation `(uninstall)` ist nützlich, um sicherzustellen, dass währen
 **Zusammenfassung**
 Dieses `Makefile` ermöglicht eine strukturierte, konsistente und wiederholbare Methode, um Skripte und zugehörige Dateien zu installieren, zu verwalten und zu deinstallieren, sei es lokal für Entwicklungszwecke oder in einem automatisierten Buildsystem.
 
-## Hinweise
+## Notas
 
 - Wenn `SCRIPT_NAME` nicht angegeben wird, bricht das `Makefile` mit einer Fehlermeldung ab.
 - Die Ziele `install` und `uninstall` benötigen `SCRIPT_NAME`, um die zu verarbeitenden Dateien zu identifizieren.
@@ -335,12 +335,12 @@ Dieses `Makefile` ermöglicht eine strukturierte, konsistente und wiederholbare 
 - Die Ziele `help` und `check` können ohne Angabe von `SCRIPT_NAME` verwendet werden.
 - Die Optionen `SCRIPT_NAME`, `PROGRAM_PREFIX`, `PROGRAM_SUFFIX`, `INSTALLDIR`, `SOURCE_DIR` und `EXTRAFILES` können als Umgebungsvariablen gesetzt werden, um das Verhalten des `Makefile`s zu steuern.
 
-## Fehlerbehebung
+## Solución de problemas
 
 - **Fehler "No Files Found"**: Stelle sicher, dass `SCRIPT_NAME` korrekt gesetzt ist und dem Basisnamen deiner Skriptdateien in `SOURCE_DIR` entspricht.
 - **Warnung "No Files Installed"**: Dies bedeutet, dass keine der Dateien gefunden wurden. Überprüfe `SCRIPT_NAME` und `SOURCE_DIR`, um sicherzustellen, dass sie korrekt gesetzt sind und die Dateien existieren.
 
-## Lizenz
+## Licencia
 
 Dieses `Makefile` ist ein eigenständiges Projekt und unter `MIT` lizensiert und darf unabhängig von der Projektlizenz verwendet werden, in dem es verwendet wird!
 
