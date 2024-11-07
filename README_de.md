@@ -178,7 +178,7 @@ INSTALLDIR := /custom/install/directory
 EXTRAFILES := /path/to/extra/file1 /path/to/extra/file2
 ```
 
-Bei den oben genannte Beispielen würden die installierten Scripte und `cfg`'s den gleichen Namensraum haben:
+Bei den oben genannten Beispielen würden die installierten Scripte und `cfg`'s den gleichen Namensraum haben:
 
 `enhanced-my-script-v2.*`
 
