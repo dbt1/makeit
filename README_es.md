@@ -2,13 +2,21 @@
 [🇩🇪 German](README_de.md) | [🇬🇧 English](README_en.md) | <span style="color: grey;">🇪🇸 Spanish</span> | [🇫🇷 French](README_fr.md) | [🇮🇹 Italian](README_it.md)
 <!-- LANGUAGE_LINKS_END -->
 
-# Makefile genérico para instalar complementos de secuencias de comandos de Shell y Lua y archivos relacionados para Neutrino
+# Makefile genérico para instalar complementos de secuencias de comandos Lua y Shell y archivos relacionados para Neutrino
 
 ## Tabla de contenido
 
-- [Generisches Makefile zum Installieren von Lua- und Shell-Skript-Plugins und zugehöriger Dateien für Neutrino](#makefile-genérico-para-instalar-complementos-de-secuencias-de-comandos-de-shell-y-lua-y-archivos-relacionados-para-neutrino)
+- [Generisches Makefile zum Installieren von Lua- und Shell-Skript-Plugins und zugehöriger Dateien für Neutrino](#makefile-genérico-para-instalar-complementos-de-secuencias-de-comandos-lua-y-shell-y-archivos-relacionados-para-neutrino)
   - [Inhaltsverzeichnis](#tabla-de-contenido)
   - [Überblick](#descripción-general)
+  - [Arbeitsweise des Makefiles](#cómo-funciona-el-archivo-make)
+    - [1. Skriptname festlegen](#1-establecer-el-nombre-del-script)
+    - [2. Dateisuche und Installation](#2-búsqueda-e-instalación-de-archivos)
+    - [3. Präfix, Suffix und Zielname](#3-prefijo-sufijo-y-nombre-de-destino)
+    - [4. Optionen und lokale Konfiguration](#4-opciones-y-configuración-local)
+    - [5. Ziele im Makefile](#5-objetivos-en-el-makefile)
+    - [6. Kontrolle und Fehlerbehebung](#6-control-y-resolución-de-problemas)
+    - [7. Deinstallation](#7-desinstalar)
   - [Verwendung](#usar)
     - [Grundlegende Befehle](#comandos-básicos)
       - [Hilfe](#ayuda)
@@ -25,14 +33,74 @@
     - [Beispielrezept für Yocto/OE](#receta-de-ejemplo-para-yoctooe)
   - [Integration in ein selbsterstelltes Buildsystem oder Crosstool-NG](#integración-en-un-sistema-de-construcción-de-creación-propia-o-crosstool-ng)
     - [Beispiel-Skript für ein selbsterstelltes Buildsystem](#script-de-ejemplo-para-un-sistema-de-compilación-de-creación-propia)
-  - [Arbeitsweise des Makefiles](#cómo-funciona-el-archivo-makefile)
   - [Hinweise](#notas)
   - [Fehlerbehebung](#solución-de-problemas)
   - [Lizenz](#licencia)
 
 ## descripción general
 
-Dieses `Makefile` wurde entwickelt, um die Installation, Deinstallation und Verwaltung von Lua- u. Shell-Skripten und zusätzlichen Dateien für die Neutrino-Umgebung nativ oder innerhalb eines Buildsystems zu ermöglichen. Es bietet verschiedene Anpassungsmöglichkeiten, die es flexibel und in unterschiedlichen Projekten wiederverwendbar machen.
+Dieses `Makefile` wurde erstellt, um die Installation, Deinstallation und Verwaltung von Lua- u. Shell-Skripten und zusätzlichen Dateien für die Neutrino-Umgebung nativ oder innerhalb eines Buildsystems zu ermöglichen. Es bietet verschiedene Anpassungsmöglichkeiten, die es flexibel und in unterschiedlichen Projekten wiederverwendbar machen.
+
+## Cómo funciona el archivo Make
+
+Das `Makefile` arbeitet, indem es abstrahiert eine Reihe von vordefinierten Zielen und Optionen verwendet, welche die Installation und Verwaltung von Skripten und Dateien basierend auf einer Basisvorlage übernimmt. Dies ermöglicht es quasi für jedes Script eine separate Buildumgebeung zu nutzen, die es unter Anderem erlaubt z.B. in modernen Buildsystemen auf genereische Art und Weise, Targets und Installations-Pakete zu erzeugen. Hier ist eine detaillierte Übersicht, wie das `Makefile` funktioniert:
+
+### 1. Establecer el nombre del script ###
+Der `SCRIPT_NAME` definiert den Basisnamen des Skripts, das installiert werden soll. Diese Angabe ist in der Regel immer der Basisname des Scripts so wie es im jeweiligen Repository oder Archiv vorliegt. Dies ist eine zwingende Angabe, die vom Benutzer gemacht werden muss, damit das `Makefile` weiß, welche Dateien es verarbeiten soll. Der `SCRIPT_NAME` wird verwendet, um verschiedene Dateitypen zu identifizieren, die zu installieren sind, wie z.B. Lua-Skripte `(.lua)`, Konfigurationsdateien `(.cfg)`, und Shell-Skripte `(.sh)`. Das `Makefile` verwendet `SCRIPT_NAME` als Basis, um automatisch alle relevanten Dateien zu finden, die mit dem Namen beginnen. Dies ist in der Neutrino-Buildumgebung in der Regel gegeben, da sich die Plugins und deren Konfigurations-Dateien, Bilder usw. im gleichen Namensraum befinden. Dateien die zusätzlich benötigt werden, können über bestimmte Optionen bzw. Umgebungsvariablen auch hinzugefügt werden.
+
+Es können auch erweiterte Namensräume verwendet werden, um eine Erzeugung verschiedener Pakete von Gleichnamigen Lua- und Bash-Plugins von anderen Providern erlaubt, ohne Konflikte zu provozieren (Siehe Abschnitt: )
+
+### 2. Búsqueda e instalación de archivos ###
+Mithilfe der Dateisuche (wildcard) identifiziert das `Makefile` alle relevanten Dateien, die den vorgegebenen Namensraum entsprechen. Dies beinhaltet:
+
+- Lua-Skripte `(*.lua)`
+
+- Konfigurationsdateien `(*.cfg)`
+
+- Shell-Skripte `(*.sh)`
+
+- Bilder `(*.png)`
+
+- Datenbankdateien `(*.db)`
+
+- Zusätzliche Dateien `(EXTRAFILES)`
+
+Die gefundenen Dateien werden dann in das Zielverzeichnis `(INSTALLDIR)` kopiert. Dabei sorgt das `Makefile` dafür, dass jede Datei mit den passenden Berechtigungen installiert wird:
+
+- Ausführbare Dateien wie `.lua`- und `.sh`-Skripte erhalten 755-Berechtigungen (Ausführung erlaubt).
+
+- Andere Dateien wie `.cfg-`, `.png-` und `.db-`Dateien erhalten 644-Berechtigungen (nur Lesen und Schreiben für den Besitzer).
+
+### 3. Prefijo, sufijo y nombre de destino ###
+Um mögliche Konflikte bei der Installation zu vermeiden, können die installierten Dateien mit einem Präfix `(PROGRAM_PREFIX)` und/oder Suffix `(PROGRAM_SUFFIX)` versehen werden. Dies ermöglicht es, beispielsweise mehrere Versionen oder Varianten eines Skripts zu installieren, ohne dass Namenskonflikte entstehen. Der optionale `TARGET_PROGRAM_NAME` erlaubt die vollständige Angabe eines alternativen Namens für die installierten Dateien.
+
+>**Wichtig!**: `SCRIPT_NAME` bleibt unberührt und muss unverändert bleiben!
+
+### 4. Opciones y configuración local ###
+Der Benutzer hat noch die Möglichkeit, Variablen über Umgebungsvariablen oder eine separate `Makefile.local`-Datei zu definieren. Auf diese Weise können darin häufig verwendete Optionen und Pfade gespeichert und wiederverwendet werden. Dies ist besonders nützlich für die Verwendung in Buildsystemen oder Nutzung benutzerdefinierter Quellverzeichnisse von wo man noch weitere Dateien für die Installation einbinden kann, die z.B. nicht dem Namensraum von `SCRIPT_NAME` entsprechen.
+
+### 5. Objetivos en el Makefile ###
+Das `Makefile` bietet verschiedene Ziele:
+
+- `install`: Installiert die Skripte und zugehörigen Dateien im angegebenen Verzeichnis.
+
+- `uninstall`: Entfernt die installierten Dateien basierend auf dem `SCRIPT_NAME`. Dies ist besonders nützlich, um sicherzustellen, dass keine unerwünschten Dateien in der Umgebung verbleiben, vor allem während der Entwicklung und Tests.
+
+- `check`: Überprüft, ob alle erforderlichen Dateien für die Installation vorhanden sind.
+
+- `help`: Listet alle verfügbaren Befehle und Optionen zur Unterstützung des Benutzers auf.
+
+- `clean`: Ein Platzhalter, der derzeit keine Funktion hat, jedoch für zukünftige Aufräumarbeiten vorgesehen ist.
+
+### 6. Control y resolución de problemas ###
+Bevor Dateien installiert werden, stellt das check-Ziel sicher, dass alle erforderlichen Dateien vorhanden sind. Wenn Dateien fehlen oder `SCRIPT_NAME` nicht angegeben wurde, wird eine klare Fehlermeldung ausgegeben. Dies macht es einfach, häufige Fehler zu erkennen und zu beheben.
+
+### 7. Desinstalar ###
+Die Deinstallation `(uninstall)` ist nützlich, um sicherzustellen, dass während der Entwicklung oder nach einer fehlerhaften Installation keine Rückstände im Installationsverzeichnis verbleiben. Das `Makefile` verwendet den `SCRIPT_NAME` und entfernt alle Dateien, die bei der Installation hinzugefügt wurden. Berücksichtig werden auch `(PROGRAM_PREFIX)` und/oder Suffix `(PROGRAM_SUFFIX)` und auch `TARGET_PROGRAM_NAME`, falls diese übergeben wurden.
+
+>**Wichtig!**:  Wenn `(PROGRAM_PREFIX)` und/oder Suffix `(PROGRAM_SUFFIX)` und/oder auch `TARGET_PROGRAM_NAME` für `ìnstall` verwendet wurden, müssen diese auch bei `uninstall` übergeben werden, damit evtl. installerte Dateien mit geändertem Namensraum gefunden werden können.
+
+---
 
 ## usar
 
@@ -88,7 +156,7 @@ oder in einer Befehlszeile:
 make install SCRIPT_NAME=my-script
 ```
 
-Hier sind die unterstützten Optionen:
+Unterstützte Optionen:
 
 - **`SCRIPT_NAME`** (erforderlich): Basisname des zu installierenden Ursprungsskripts. Beispiel:
 
@@ -115,7 +183,6 @@ Hier sind die unterstützten Optionen:
 - **Konfigurationsdateien (`*.cfg`)**: Mit Leseberechtigungen (`644`) installiert.
 - **Datenbankdateien (`*.db`)**: Mit Leseberechtigungen (`644`) installiert.
 - **Bilder (`*.png`)**: Mit Leseberechtigungen (`644`) installiert.
-- **Shell-Skripte (`*.sh`)**: Mit Ausführberechtigungen (`755`) installiert.
 - **Andere Dateien**: Mit Leseberechtigungen (`644`) installiert.
 
 ### Objetivos de archivos Make
@@ -222,11 +289,13 @@ S = "${WORKDIR}/git"
 DEPENDS = "lua-native"
 
 do_install() {
-    export SCRIPT_NAME=my-script
-    oe_runmake install SCRIPT_NAME=my-script INSTALLDIR=${D}${bindir}
+    SCRIPT_NAME=my-script
+    oe_runmake install ${SCRIPT_NAME} INSTALLDIR=${D}${bindir}
 }
 
-FILES_${PN} = "${bindir}/my-script.lua ${bindir}/my-script.cfg"
+FILES_${PN} = " \
+  ${bindir} \
+"
 ```
 
 In diesem Rezept werden die grundlegenden Variablen wie `SRC_URI` und `SRCREV` gesetzt, um die Quelle aus dem Git-Repository zu beziehen. Die `do_install()`-Funktion führt den Installationsschritt aus und nutzt die Parameter aus dem `Makefile`. In diesem Beispiel wird `SCRIPT_NAME` gesetzt, um das Zielskript zu spezifizieren.
@@ -239,15 +308,14 @@ Das folgende Beispiel zeigt, wie das `Makefile` in ein selbsterstelltes Buildsys
 
 ```sh
 #!/bin/sh
-# Beispiel-Skript für die Integration des Makefiles in ein selbsterstelltes Buildsystem
 
-# Variablen setzen
+# Set variables
 REPO_URL="https://your.git.repo/something.git"
 SCRIPT_NAME="my-script"
 INSTALL_DIR="/opt/custom/install/path"
 BUILD_DIR="/tmp/build"
 
-# Erforderliche Schritte ausführen
+# Execute required steps
 echo "Cloning repository..."
 git clone $REPO_URL $BUILD_DIR
 
@@ -264,68 +332,6 @@ echo "Installation complete."
 ```
 
 Dieses Skript klont das Git-Repository in ein temporäres Verzeichnis (`/tmp/build`), führt den Installationsbefehl aus und bereinigt anschließend den temporären Ordner. Auf diese Weise kann das `Makefile` einfach in jedes benutzerdefinierte Buildsystem integriert werden.
-
-## Cómo funciona el archivo Makefile
-
-Das `Makefile` arbeitet, indem es eine Reihe von vordefinierten Zielen und Optionen verwendet, die die Installation und Verwaltung von Skripten und Dateien vereinfachen. Hier ist eine detaillierte Übersicht, wie das `Makefile` funktioniert:
-
-**1. Skriptname festlegen `(SCRIPT_NAME)`**:
-Der `SCRIPT_NAME` definiert den Basisnamen des Skripts, das installiert werden soll. Diese Angabe ist in der Regel immer der Basisname des Scripts so wie es im jeweiligen Repository oder Archiv vorliegt. Dies ist eine zwingende Angabe, die vom Benutzer gemacht werden muss, damit das `Makefile` weiß, welche Dateien es verarbeiten soll. Der `SCRIPT_NAME` wird verwendet, um verschiedene Dateitypen zu identifizieren, die zu installieren sind, wie z.B. Lua-Skripte `(.lua)`, Konfigurationsdateien `(.cfg)`, und Shell-Skripte `(.sh)`. Das `Makefile` verwendet `SCRIPT_NAME` als Basis, um automatisch alle relevanten Dateien zu finden, die mit dem Namen beginnen.
-
-**2. Dateisuche und Installation**:
-Mithilfe der Dateisuche (wildcard) identifiziert das `Makefile` alle relevanten Dateien, die den vorgegebenen Namenskonventionen entsprechen. Dies beinhaltet:
-
-- Lua-Skripte `(*.lua)`
-
-- Konfigurationsdateien `(*.cfg)`
-
-- Shell-Skripte `(*.sh)`
-
-- Bilder `(*.png)`
-
-- Datenbankdateien `(*.db)`
-
-- Zusätzliche Dateien `(EXTRAFILES)`
-
-Die gefundenen Dateien werden dann in das Zielverzeichnis `(INSTALLDIR)` kopiert. Dabei sorgt das `Makefile` dafür, dass jede Datei mit den passenden Berechtigungen installiert wird:
-
-- Ausführbare Dateien wie `.lua`- und `.sh`-Skripte erhalten 755-Berechtigungen (Ausführung erlaubt).
-
-- Andere Dateien wie `.cfg-`, `.png-` und `.db-`Dateien erhalten 644-Berechtigungen (nur Lesen und Schreiben für den Besitzer).
-
-**3. Präfix, Suffix und Zielname**:
-Um mögliche Konflikte bei der Installation zu vermeiden, können die installierten Dateien mit einem Präfix `(PROGRAM_PREFIX)` und/oder Suffix `(PROGRAM_SUFFIX)` versehen werden. Dies ermöglicht es, beispielsweise mehrere Versionen oder Varianten eines Skripts zu installieren, ohne dass Namenskonflikte entstehen. Der optionale `TARGET_PROGRAM_NAME` erlaubt die vollständige Angabe eines alternativen Namens für die installierten Dateien.
-
->**Wichtig!**: `SCRIPT_NAME` bleibt unberührt und muss unverändert bleiben!
-
-**4. Optionen und lokale Konfiguration**:
-Der Benutzer hat noch die Möglichkeit, Variablen über Umgebungsvariablen oder eine separate `Makefile.local`-Datei zu definieren. Auf diese Weise können darin häufig verwendete Optionen und Pfade gespeichert und wiederverwendet werden. Dies ist besonders nützlich für die Verwendung in Buildsystemen oder Nutzung benutzerdefinierter Quellverzeichnisse von wo man noch weitere Dateien für die Installation einbinden kann, die z.B. nicht dem Namensraum von `SCRIPT_NAME` entsprechen.
-
-**5. Ziele im Makefile**:
-Das `Makefile` bietet verschiedene Ziele:
-
-- `install`: Installiert die Skripte und zugehörigen Dateien im angegebenen Verzeichnis.
-
-- `uninstall`: Entfernt die installierten Dateien basierend auf dem `SCRIPT_NAME`. Dies ist besonders nützlich, um sicherzustellen, dass keine unerwünschten Dateien in der Umgebung verbleiben, vor allem während der Entwicklung und Tests.
-
-- `check`: Überprüft, ob alle erforderlichen Dateien für die Installation vorhanden sind.
-
-- `help`: Listet alle verfügbaren Befehle und Optionen zur Unterstützung des Benutzers auf.
-
-- `clean`: Ein Platzhalter, der derzeit keine Funktion hat, jedoch für zukünftige Aufräumarbeiten vorgesehen ist.
-
-**6. Kontrolle und Fehlerbehebung**:
-Bevor Dateien installiert werden, stellt das check-Ziel sicher, dass alle erforderlichen Dateien vorhanden sind. Wenn Dateien fehlen oder `SCRIPT_NAME` nicht angegeben wurde, wird eine klare Fehlermeldung ausgegeben. Dies macht es einfach, häufige Fehler zu erkennen und zu beheben.
-
-**7. Deinstallation**:
-Die Deinstallation `(uninstall)` ist nützlich, um sicherzustellen, dass während der Entwicklung oder nach einer fehlerhaften Installation keine Rückstände im Installationsverzeichnis verbleiben. Das `Makefile` verwendet den `SCRIPT_NAME` und entfernt alle Dateien, die bei der Installation hinzugefügt wurden. Berücksichtig werden auch `(PROGRAM_PREFIX)` und/oder Suffix `(PROGRAM_SUFFIX)` und auch `TARGET_PROGRAM_NAME`, falls diese übergeben wurden.
-
->**Wichtig!**:  Wenn `(PROGRAM_PREFIX)` und/oder Suffix `(PROGRAM_SUFFIX)` und/oder auch `TARGET_PROGRAM_NAME` für `ìnstall` verwendet wurden, müssen diese auch bei `uninstall` übergeben werden, damit evtl. installerte Dateien mit geändertem Namensraum gefunden werden können.
-
----
-
-**Zusammenfassung**
-Dieses `Makefile` ermöglicht eine strukturierte, konsistente und wiederholbare Methode, um Skripte und zugehörige Dateien zu installieren, zu verwalten und zu deinstallieren, sei es lokal für Entwicklungszwecke oder in einem automatisierten Buildsystem.
 
 ## Notas
 
@@ -348,5 +354,6 @@ Dieses `Makefile` ist ein eigenständiges Projekt und unter `MIT` lizensiert und
 ---
 
 Mit diesem `Makefile` hast du eine flexible Möglichkeit, deine Lua-Skripte und zugehörigen Dateien für Neutrino zu installieren, zu deinstallieren und zu verwalten. Fühle dich frei, das `Makefile` für andere Zwecke anzupassen und jegliche Verbesserungen zu teilen, die du vornimmst!
+
 
 
