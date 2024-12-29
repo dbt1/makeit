@@ -1,6 +1,6 @@
 # Makefile for installing Lua scripts and associated files for Neutrino
 
-# Version: 0.0.0
+# Version: 0.1.0
 
 # Optional inclusion of a local configuration file
 -include Makefile.local
