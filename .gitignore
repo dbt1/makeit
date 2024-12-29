@@ -2,3 +2,4 @@ venv
 *.kate-swp
 oe-logs
 oe-workdir
+.directory
