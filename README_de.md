@@ -77,7 +77,11 @@ Um mögliche Konflikte bei der Installation zu vermeiden, können die installier
 >**Wichtig!**: `SCRIPT_NAME` bleibt unberührt und muss unverändert bleiben!
 
 ### 4. Optionen und lokale Konfiguration ###
-Der Benutzer hat noch die Möglichkeit, Variablen über Umgebungsvariablen oder eine separate `Makefile.local`-Datei zu definieren. Auf diese Weise können darin häufig verwendete Optionen und Pfade gespeichert und wiederverwendet werden. Dies ist besonders nützlich für die Verwendung in Buildsystemen oder Nutzung benutzerdefinierter Quellverzeichnisse von wo man noch weitere Dateien für die Installation einbinden kann, die z.B. nicht dem Namensraum von `SCRIPT_NAME` entsprechen.
+Der Benutzer hat die Möglichkeit, Variablen über Umgebungsvariablen oder separate Konfigurationsdateien zu definieren:
+- `Makefile.local`: Für allgemeine, zusätzliche Einstellungen und Abläufe
+- `Makefile.$(SCRIPT_NAME)`: Für skript-spezifische Einstellungen und Abläufe
+
+Diese Konfigurationsdateien werden automatisch eingebunden, falls sie existieren. Auf diese Weise können darin häufig verwendete Optionen und Pfade gespeichert und wiederverwendet werden. Dies ist besonders nützlich für die Verwendung in Buildsystemen oder Nutzung benutzerdefinierter Quellverzeichnisse von wo man noch weitere Dateien für die Installation einbinden kann, die z.B. nicht dem Namensraum von `SCRIPT_NAME` entsprechen. `Makefile.$(SCRIPT_NAME)` kann auch dazu verwendet werden, um das `makeit Makefile` im Orignalzustand als reguläres `Makefile` zu nutzen und `Makefile.$(SCRIPT_NAME)` quasi als Ergänzung dazu in ein bereits vorhandenes Pluginverzeichnis einzubauen. Damit sollten sich vorhanden Projekte relativ einfach als selbständige Projekte mit eigener Build- und Installations-Routine erstellen lassen.
 
 ### 5. Ziele im Makefile ###
 Das `Makefile` bietet verschiedene Ziele:
@@ -266,6 +270,28 @@ Damit würden die installierten Scripte und `cfg`'s diesen Namensraum haben:
 
 `enhanced-script-v2.*`
 
+### Skript-spezifische Konfiguration
+
+Zusätzlich zur allgemeinen `Makefile.local` kannst Du skript-spezifische Konfigurationsdateien erstellen. `Makefile.$(SCRIPT_NAME)` Diese werden automatisch geladen, wenn sie existieren:
+
+**Beispiel `Makefile.my-script`**
+
+```make
+# Spezifische Einstellungen für my-script
+PROGRAM_PREFIX := test-
+INSTALLDIR := /opt/neutrino/plugins/test
+EXTRAFILES := additional-lib.lua helper-functions.sh
+```
+Diese Datei wird automatisch eingebunden, wenn Du das `Makefile` mit `SCRIPT_NAME=my-script` aufrufst:
+
+```bash
+make install SCRIPT_NAME=my-script
+```
+Die Reihenfolge der Konfigurationseinbindung ist: 
+1. `Makefile.local` (falls vorhanden), 
+2. `Makefile.$(SCRIPT_NAME)` (falls vorhanden), 
+3. Kommandozeilenparameter (überschreiben alle vorherigen Einstellungen).
+
 ## Integration in Yocto/OpenEmbedded Buildsystem
 
 Wenn du dieses `Makefile` in ein Yocto/OE Buildsystem einbauen möchtest, kannst du ein entsprechendes Rezept erstellen, das dieses `Makefile` verwendet, um die Skripte zu installieren. Angenommen, dein Quellcode besteht aus einer Lua-Datei und einer Konfigurationsdatei, und dieses `Makefile` befindet sich zusammen mit den Quelldateien in einem Git-Repository, könnte das Rezept folgendermaßen aussehen:
@@ -353,7 +379,7 @@ Dieses `Makefile` ist ein eigenständiges Projekt und unter `MIT` lizensiert und
 
 ---
 
-Mit diesem `Makefile` hast du eine flexible Möglichkeit, deine Lua-Skripte und zugehörigen Dateien für Neutrino zu installieren, zu deinstallieren und zu verwalten. Fühle dich frei, das `Makefile` für andere Zwecke anzupassen und jegliche Verbesserungen zu teilen, die du vornimmst!
+Mit diesem `Makefile` hast du eine flexible Möglichkeit, deine Lua-Skripte und zugehörigen Dateien für Neutrino über Dein Buildsystem zu installieren, zu deinstallieren und zu verwalten. Fühle dich frei, das `makit` `Makefile` für andere Zwecke anzupassen und jegliche Verbesserungen zu teilen, die du vornimmst!
 
 
 
