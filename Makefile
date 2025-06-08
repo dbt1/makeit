@@ -1,8 +1,8 @@
 # Makefile for installing Lua scripts and associated files for Neutrino
 
-# Version: 0.1.0
+# Version: 0.1.1
 
-# Optional inclusion of a local configuration file
+# Optional inclusion of a local makefile with configuartion
 -include Makefile.local
 
 # Ensure SCRIPT_NAME is provided for specific targets
@@ -10,6 +10,9 @@ ifeq ($(filter install uninstall check,$(MAKECMDGOALS)),)
 else ifndef SCRIPT_NAME
     $(error SCRIPT_NAME is not set. Please set SCRIPT_NAME to the base name of your origin script. Example: make install SCRIPT_NAME=logoupdater)
 endif
+
+# Optional inclusion of a specific makefile with configuartion
+-include Makefile.$(SCRIPT_NAME)
 
 # Optional custom target program name, prefix, and suffix
 PROGRAM_PREFIX ?=
@@ -47,7 +50,7 @@ help:
 	@echo "  make install SCRIPT_NAME=<name> [options]"
 	@echo ""
 	@echo "Options:"
-	@echo "  Set these environment variables or use Makfile.local."
+	@echo "  Set these environment variables or use Makefile.local."
 	@echo "  SCRIPT_NAME=<name>      Base name of the origin script to install (required)."
 	@echo "  PROGRAM_PREFIX=<prefix> Optional prefix for installed files."
 	@echo "  PROGRAM_SUFFIX=<suffix> Optional suffix for installed files."
